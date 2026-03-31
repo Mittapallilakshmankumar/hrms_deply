@@ -1,0 +1,1009 @@
+==================================================
+BACKEND APP DATA OWNERSHIP AUDIT
+==================================================
+
+1. Project Backend App List
+
+Apps found from `INSTALLED_APPS` in `HR-BACKEND/hrms/hrms/settings.py`:
+- `app1`
+  - Folder: `HR-BACKEND/hrms/app1`
+  - Main purpose: HR candidate and employee data
+  - Type: core
+- `attendance`
+  - Folder: `HR-BACKEND/hrms/attendance`
+  - Main purpose: attendance records and attendance dashboard data
+  - Type: feature-specific
+- `login`
+  - Folder: `HR-BACKEND/hrms/login`
+  - Main purpose: HR login endpoint and an old profile model
+  - Type: feature-specific, partly legacy
+- `leave`
+  - Folder: `HR-BACKEND/hrms/leave`
+  - Main purpose: leave requests
+  - Type: feature-specific
+- `finance`
+  - Folder: `HR-BACKEND/hrms/finance`
+  - Main purpose: Maker-Checker petty cash / expense workflow
+  - Type: feature-specific
+- `common`
+  - Folder: `HR-BACKEND/hrms/common`
+  - Main purpose: shared constants and helper functions
+  - Type: shared
+- `accounts`
+  - Folder: `HR-BACKEND/hrms/accounts`
+  - Main purpose: Maker-Checker auth, users, and HR-to-Maker-Checker role mapping
+  - Type: core for Maker-Checker
+- `hrms`
+  - Folder: `HR-BACKEND/hrms/hrms`
+  - Main purpose: Django project config only
+  - Type: core config, no business data
+
+Not business apps:
+- `media`
+  - Folder: `HR-BACKEND/hrms/media`
+  - This is file storage, not a Django app
+- `staticfiles`
+  - Folder: `HR-BACKEND/hrms/staticfiles`
+  - This is collected static output, not a Django app
+
+Third-party installed apps:
+- `corsheaders`
+- `rest_framework`
+- `rest_framework_simplejwt`
+- `django_filters`
+- Django built-ins like `auth`, `admin`, `sessions`
+- These do not own project business data, except Django auth support tables
+
+No local `signals.py` files were found in the backend apps.
+
+2. App-by-App Purpose
+
+APP: `app1`
+Purpose:
+- Stores HR candidate pipeline data and HR employee master data
+
+APP: `attendance`
+Purpose:
+- Stores daily attendance rows
+- Builds simple attendance dashboards from those rows plus employee names from `app1`
+
+APP: `login`
+Purpose:
+- Provides HR login API using `app1.Employee`
+- Also contains `Profile`, but that model does not match the current active HR login flow
+
+APP: `leave`
+Purpose:
+- Stores leave applications
+- Copies some employee details from `app1.Employee` into the leave row
+
+APP: `finance`
+Purpose:
+- Stores petty cash / advance / expense workflow data for Maker-Checker
+- Stores ledger, audit history, and notifications for that workflow
+
+APP: `common`
+Purpose:
+- Shared enums and utility functions
+- No stored business data
+
+APP: `accounts`
+Purpose:
+- Stores Maker-Checker user accounts
+- Stores the mapping from an HR employee to a Maker-Checker role
+- Exposes Maker-Checker auth and admin APIs
+
+APP: `hrms`
+Purpose:
+- Project settings, URL mounts, WSGI
+- No stored business data
+
+3. Model Ownership by App
+
+APP: `app1`
+
+Model: `Candidate`
+- App: `app1`
+- File: `HR-BACKEND/hrms/app1/models.py`
+- Data stored:
+  - candidate personal details
+  - contact details
+  - government IDs
+  - address
+  - source / skills / department
+  - uploaded candidate photo
+  - candidate password field
+  - candidate status
+- Important fields:
+  - `first_name`, `last_name`, `email`, `phone`
+  - `password`
+  - `aadhaar`, `pan`, `uan`
+  - `department`, `skills`, `status`
+  - `photo`
+- Related models:
+  - `Education` via `related_name="education"`
+  - `Experience` via `related_name="experiences"`
+- Category:
+  - Employee Data
+  - File/Upload Data
+  - Master data / pre-employee pipeline data
+
+Model: `Education`
+- App: `app1`
+- File: `HR-BACKEND/hrms/app1/models.py`
+- Data stored:
+  - education rows for a candidate
+- Important fields:
+  - `candidate`, `school`, `degree`, `field_of_study`, `start_date`, `notes`
+- Related models:
+  - FK to `app1.Candidate`
+- Category:
+  - Employee Data
+  - Supporting data
+
+Model: `Experience`
+- App: `app1`
+- File: `HR-BACKEND/hrms/app1/models.py`
+- Data stored:
+  - work experience rows for a candidate
+- Important fields:
+  - `candidate`, `company_name`, `role`, `years`, `description`
+- Related models:
+  - FK to `app1.Candidate`
+- Category:
+  - Employee Data
+  - Supporting data
+
+Model: `Employee`
+- App: `app1`
+- File: `HR-BACKEND/hrms/app1/models.py`
+- Data stored:
+  - HR employee master record
+  - employee login password for HR login
+  - HR role
+  - HR profile details
+- Important fields:
+  - `employee_id`
+  - `name`, `email`, `password`
+  - `phone`, `department`, `date_of_joining`
+  - `role`
+  - `aadhaar`, `pan`, `city`, `skills`
+- Related models:
+  - one-to-one back links from `accounts.User` and `accounts.MakerCheckerRoleAssignment`
+- Category:
+  - Employee Data
+  - User/Auth Data
+  - Master data
+
+APP: `attendance`
+
+Model: `Attendance`
+- App: `attendance`
+- File: `HR-BACKEND/hrms/attendance/models.py`
+- Data stored:
+  - one row per user per date
+  - check-in time
+  - check-out time
+  - notes and summary
+- Important fields:
+  - `user_id`, `date`, `check_in`, `check_out`, `notes`, `summary`
+- Related models:
+  - no FK
+  - logical link only: `user_id` is used like `app1.Employee.id`
+- Category:
+  - Attendance Data
+  - Transaction data
+
+APP: `leave`
+
+Model: `Leave`
+- App: `leave`
+- File: `HR-BACKEND/hrms/leave/models.py`
+- Data stored:
+  - leave application row
+  - employee identifying details copied at submit time
+  - leave period and reason
+  - approval status
+- Important fields:
+  - `user_id`, `name`, `employee_id`, `department`
+  - `leave_type`, `from_date`, `to_date`, `reason`, `status`
+- Related models:
+  - no FK
+  - logical link only: `user_id` is used like `app1.Employee.id`
+- Category:
+  - Leave Data
+  - Transaction data
+
+APP: `login`
+
+Model: `Profile`
+- App: `login`
+- File: `HR-BACKEND/hrms/login/models.py`
+- Data stored:
+  - simple profile name and phone
+  - linked to `settings.AUTH_USER_MODEL`
+- Important fields:
+  - `user`, `name`, `phone`
+- Related models:
+  - FK to `accounts.User` because `AUTH_USER_MODEL = accounts.User`
+- Category:
+  - User/Auth Data
+  - Legacy/Unused Data
+
+APP: `accounts`
+
+Model: `User`
+- App: `accounts`
+- File: `HR-BACKEND/hrms/accounts/models.py`
+- Data stored:
+  - custom Django auth user used by Maker-Checker and finance
+  - username/email/full_name
+  - Maker-Checker role
+  - optional link to HR employee
+- Important fields:
+  - inherited `AbstractUser` fields
+  - `email`, `full_name`, `role`, `employee`
+- Related models:
+  - one-to-one to `app1.Employee`
+  - one-to-one back link from `MakerCheckerRoleAssignment`
+  - many finance FKs
+- Category:
+  - User/Auth Data
+  - Maker-Checker Data
+  - Master auth data
+
+Model: `MakerCheckerRoleAssignment`
+- App: `accounts`
+- File: `HR-BACKEND/hrms/accounts/models.py`
+- Data stored:
+  - the current Maker-Checker role for one HR employee
+  - whether that access is active
+  - who assigned it
+  - when it was assigned or updated
+- Important fields:
+  - `employee`, `user`, `role`, `is_active`, `assigned_by`, `assigned_at`, `updated_at`
+- Related models:
+  - one-to-one to `app1.Employee`
+  - one-to-one to `accounts.User`
+  - FK `assigned_by` to `accounts.User`
+- Category:
+  - Maker-Checker Data
+  - User/Auth Data
+  - Config / mapping data
+
+APP: `finance`
+
+Model: `Advance`
+- App: `finance`
+- File: `HR-BACKEND/hrms/finance/models.py`
+- Data stored:
+  - advance allocated to a maker
+  - total/spent/balance amounts
+  - allocation status and remarks
+- Important fields:
+  - `reference`
+  - `maker`, `allocated_by`
+  - `total_amount`, `spent_amount`, `balance_amount`
+  - `status`, `remarks`
+- Related models:
+  - FK to `accounts.User` as maker
+  - FK to `accounts.User` as allocated_by
+  - parent of `Expense`, `LedgerEntry`, `AuditLog`
+- Category:
+  - Finance Data
+  - Transaction data
+
+Model: `Expense`
+- App: `finance`
+- File: `HR-BACKEND/hrms/finance/models.py`
+- Data stored:
+  - petty cash expense request
+  - workflow status
+  - bill upload
+  - reviewer/approver links
+  - dates for each workflow step
+- Important fields:
+  - `reference`, `advance`, `maker`
+  - `payable_to`, `expense_date`, `amount`, `category`, `purpose`
+  - `payment_mode`, `transaction_reference`
+  - `reviewed_by`, `approved_by`
+  - `status`, `bill_file`, `rejection_reason`
+- Related models:
+  - FK to `finance.Advance`
+  - FK to `accounts.User` for maker/reviewer/approver
+  - parent of `LedgerEntry`, `AuditLog`, `Notification`
+- Category:
+  - Finance Data
+  - File/Upload Data
+  - Transaction data
+
+Model: `LedgerEntry`
+- App: `finance`
+- File: `HR-BACKEND/hrms/finance/models.py`
+- Data stored:
+  - financial ledger rows for advances and expenses
+- Important fields:
+  - `advance`, `expense`, `entry_type`, `amount`, `balance_after`, `note`
+- Related models:
+  - FK to `finance.Advance`
+  - FK to `finance.Expense`
+- Category:
+  - Finance Data
+  - Audit/History Data
+
+Model: `AuditLog`
+- App: `finance`
+- File: `HR-BACKEND/hrms/finance/models.py`
+- Data stored:
+  - workflow action history
+  - actor
+  - description
+  - metadata
+- Important fields:
+  - `actor`, `advance`, `expense`, `action`, `description`, `metadata`, `created_at`
+- Related models:
+  - FK to `accounts.User`
+  - FK to `finance.Advance`
+  - FK to `finance.Expense`
+- Category:
+  - Audit/History Data
+  - Finance Data
+
+Model: `Notification`
+- App: `finance`
+- File: `HR-BACKEND/hrms/finance/models.py`
+- Data stored:
+  - user notifications for finance workflow
+  - read/unread state
+- Important fields:
+  - `user`, `title`, `message`, `notification_type`
+  - `related_expense`, `action_url`, `is_read`
+- Related models:
+  - FK to `accounts.User`
+  - FK to `finance.Expense`
+- Category:
+  - Notification Data
+  - Finance Data
+
+APP: `common`
+- No models
+- File paths:
+  - `HR-BACKEND/hrms/common/choices.py`
+  - `HR-BACKEND/hrms/common/utils.py`
+- Category:
+  - Common/Shared Data definitions only, not stored data
+
+APP: `hrms`
+- No models
+- Only project config
+
+4. App-wise Data Summary
+
+APP NAME: `app1`
+Purpose:
+- HR core employee and candidate app
+This app stores:
+- candidate applications
+- candidate education and experience
+- final employee master records
+- HR-side password and role fields for employees
+Main models:
+- `Candidate`
+- `Education`
+- `Experience`
+- `Employee`
+Source of truth for:
+- HR employee master data
+- candidate pipeline data
+- HR employee login password used by `login` app
+Connected apps:
+- `attendance`
+- `leave`
+- `accounts`
+Used by APIs:
+- `api/app1/add/`
+- `api/app1/list/`
+- `api/app1/approve-candidate/<id>/`
+- `api/app1/dashboard/`
+- `api/app1/employees/`
+Used by frontend pages if traceable:
+- `HR-Frontend-final/src/components/AddCandidateModal.jsx`
+- `HR-Frontend-final/src/components/CandidatesList.js`
+- `HR-Frontend-final/src/components/CandidateTable.jsx`
+- `HR-Frontend-final/src/components/EmployeesList.js`
+- `HR-Frontend-final/src/components/Home.js`
+
+APP NAME: `attendance`
+Purpose:
+- HR attendance tracking
+This app stores:
+- one attendance row per employee per date
+- check-in/check-out times
+- notes and summary
+Main models:
+- `Attendance`
+Source of truth for:
+- attendance event records
+Connected apps:
+- `app1`
+Used by APIs:
+- `api/attendance/check-in/`
+- `api/attendance/check-out/`
+- `api/attendance/attendance/`
+- `api/attendance/admin-dashboard/`
+Used by frontend pages if traceable:
+- `HR-Frontend-final/src/components/Home.js`
+- `HR-Frontend-final/src/components/AdminPanel.js`
+- `HR-Frontend-final/src/components/ApproveLeave.js`
+
+APP NAME: `leave`
+Purpose:
+- HR leave workflow
+This app stores:
+- leave requests
+- copied employee details inside each leave row
+- approval status
+Main models:
+- `Leave`
+Source of truth for:
+- leave request records and leave status
+Connected apps:
+- `app1`
+Used by APIs:
+- `api/leave/apply/`
+- `api/leave/list/`
+- `api/leave/approve/<id>/`
+- `api/leave/reject/<id>/`
+- `api/leave/employee/<user_id>/`
+Used by frontend pages if traceable:
+- `HR-Frontend-final/src/components/EmployeeRequestForm.jsx`
+- `HR-Frontend-final/src/components/Home.js`
+
+APP NAME: `login`
+Purpose:
+- HR login endpoint
+- old profile model
+This app stores:
+- `Profile` rows, but active login does not use them
+Main models:
+- `Profile`
+Source of truth for:
+- unclear for profile data
+- HR login itself actually reads `app1.Employee`, not `Profile`
+Connected apps:
+- `app1`
+- `accounts` indirectly through `AUTH_USER_MODEL`
+Used by APIs:
+- `api/login/`
+Used by frontend pages if traceable:
+- `HR-Frontend-final/src/components/Login.js`
+
+APP NAME: `accounts`
+Purpose:
+- Maker-Checker auth and access control
+This app stores:
+- custom auth user rows
+- role assignment rows linking HR employees to Maker-Checker access
+Main models:
+- `User`
+- `MakerCheckerRoleAssignment`
+Source of truth for:
+- Maker-Checker user account data
+- Maker-Checker role assignment and active/inactive access
+Connected apps:
+- `app1`
+- `finance`
+- `login` through `AUTH_USER_MODEL`
+Used by APIs:
+- `api/auth/login/`
+- `api/auth/me/`
+- `api/auth/hr-users/`
+- `api/auth/role-assignments/`
+- `api/auth/users/`
+- `api/auth/checker-options/`
+- `api/auth/admin/dashboard/`
+Used by frontend pages if traceable:
+- `HR-Frontend-final/src/accounts/pages/LoginPage.jsx`
+- `HR-Frontend-final/src/accounts/pages/AdminDashboardPage.jsx`
+- other pages under `HR-Frontend-final/src/accounts/pages`
+
+APP NAME: `finance`
+Purpose:
+- Maker-Checker money workflow
+This app stores:
+- advances
+- expenses
+- ledger history
+- audit history
+- notifications
+Main models:
+- `Advance`
+- `Expense`
+- `LedgerEntry`
+- `AuditLog`
+- `Notification`
+Source of truth for:
+- petty cash workflow data
+- approval history for petty cash workflow
+- Maker-Checker finance notifications
+Connected apps:
+- `accounts`
+- `common`
+Used by APIs:
+- `api/finance/advances/`
+- `api/finance/expenses/`
+- `api/finance/ledger/`
+- `api/finance/notifications/`
+- `api/finance/dashboard/maker/`
+- `api/finance/dashboard/checker/`
+- `api/finance/dashboard/reports/`
+Used by frontend pages if traceable:
+- Maker, Checker, Admin pages under `HR-Frontend-final/src/accounts/pages`
+
+APP NAME: `common`
+Purpose:
+- shared enums and helper functions
+This app stores:
+- no database rows
+Main models:
+- none
+Source of truth for:
+- shared status choices
+- shared money/reference/date utility rules
+Connected apps:
+- `accounts`
+- `finance`
+Used by APIs:
+- indirectly through serializers, models, services
+
+APP NAME: `hrms`
+Purpose:
+- project-level config
+This app stores:
+- no business data
+Main models:
+- none
+Source of truth for:
+- URL mount map
+- settings only
+
+5. API-to-Data Mapping
+
+APP: `app1`
+- `api/app1/add/`
+  - Endpoint owner: `app1`
+  - View: `add_candidate` in `HR-BACKEND/hrms/app1/views.py`
+  - Writes: `Candidate`
+  - Reads: request data and uploaded file
+  - Notes: active code writes only `Candidate`; education creation code exists but is unreachable in current function
+- `api/app1/list/`
+  - Reads: `Candidate`
+  - Uses: `CandidateSerializer`
+- `api/app1/delete/<id>/`
+  - Writes: deletes `Candidate`
+- `api/app1/update/<id>/`
+  - Writes: updates `Candidate`
+- `api/app1/approve-candidate/<id>/`
+  - Reads: `Candidate`
+  - Writes: `Employee`
+  - Deletes: `Candidate`
+  - Data ownership mix:
+    - candidate data comes from `app1.Candidate`
+    - final employee data moves into `app1.Employee`
+- `api/app1/dashboard/`
+  - Reads: `attendance.Attendance`
+  - Does not use app1 models directly for counts
+- `api/app1/employees/`
+  - Reads: `Employee`
+
+APP: `attendance`
+- `api/attendance/check-in/`
+  - Writes: `Attendance`
+- `api/attendance/check-out/`
+  - Reads/Writes: `Attendance`
+- `api/attendance/attendance/`
+  - Reads: `Attendance`
+- `api/attendance/admin-dashboard/`
+  - Reads: `Attendance`
+  - Reads: `app1.Employee`
+  - Mixes apps: yes
+
+APP: `leave`
+- `api/leave/apply/`
+  - Reads: `app1.Employee`
+  - Writes: `Leave`
+  - Mixes apps: yes
+- `api/leave/list/`
+  - Reads: `Leave`
+- `api/leave/approve/<id>/`
+  - Writes: `Leave.status`
+- `api/leave/reject/<id>/`
+  - Writes: `Leave.status`
+- `api/leave/employee/<user_id>/`
+  - Reads: `app1.Employee`
+  - Exposes employee details, not leave data
+
+APP: `login`
+- `api/login/`
+  - Endpoint owner: `login`
+  - View: `login_view`
+  - Reads: `app1.Employee`
+  - Writes: no models
+  - Returns: JWT plus HR employee fields
+  - Data owner for credentials here: `app1.Employee`, not `login.Profile`
+
+APP: `accounts`
+- `api/auth/login/`
+  - Reads: `accounts.User`
+  - Reads: `app1.Employee`
+  - Reads: `MakerCheckerRoleAssignment`
+  - Writes: may sync `accounts.User` through `sync_role_assignment_user`
+  - Mixes apps: yes
+- `api/auth/me/`
+  - Reads: `accounts.User`
+- `api/auth/hr-users/`
+  - Reads: `app1.Employee`
+  - Adds Maker-Checker assignment info from `MakerCheckerRoleAssignment`
+- `api/auth/role-assignments/` GET
+  - Reads: `MakerCheckerRoleAssignment`
+  - Includes nested `Employee` and `User`
+- `api/auth/role-assignments/` POST
+  - Reads: `Employee`
+  - Writes: `MakerCheckerRoleAssignment`
+  - Writes/updates: `User`
+  - Mixes apps: yes
+- `api/auth/role-assignments/<id>/` PATCH
+  - Writes: `MakerCheckerRoleAssignment`
+  - Syncs: `User`
+- `api/auth/users/` GET
+  - Reads: `User`
+  - This is Maker-Checker user list, not HR employee list
+- `api/auth/users/` POST
+  - No write now
+  - Returns retired message
+- `api/auth/checker-options/`
+  - Reads: `User` filtered by active role assignment
+- `api/auth/admin/dashboard/`
+  - Reads: `MakerCheckerRoleAssignment`
+  - Reads: `User`
+  - Reads: `finance.Advance`
+  - Reads: `finance.Expense`
+  - Mixes apps: yes
+
+APP: `finance`
+- `api/finance/advances/`
+  - Reads/Writes: `Advance`
+  - Create path delegates to `finance.services.create_advance`
+- `api/finance/advances/<id>/ledger/`
+  - Reads: `LedgerEntry`
+- `api/finance/advances/maker-balances/`
+  - Reads: `Advance`
+  - Reads related `accounts.User`
+- `api/finance/expenses/`
+  - Reads/Writes: `Expense`
+  - Create path delegates to `finance.services.create_expense`
+- `api/finance/expenses/<id>/submit/`
+  - Writes: `Expense`
+  - Writes audit/notification side effects via services
+- `api/finance/expenses/<id>/review/`
+  - Writes: `Expense`
+  - Writes: `Notification`, `AuditLog`
+- `api/finance/expenses/<id>/approve/`
+  - Writes: `Expense`
+  - Writes: `Advance`
+  - Writes: `LedgerEntry`, `AuditLog`, `Notification`
+- `api/finance/expenses/<id>/reject/`
+  - Writes: `Expense`
+  - Writes: `AuditLog`, `Notification`
+- `api/finance/expenses/<id>/upload-bill/`
+  - Writes: `Expense.bill_file`
+  - Writes: `AuditLog`, `Notification`
+- `api/finance/expenses/<id>/close/`
+  - Writes: `Expense`
+  - May write: `Advance`
+  - Writes: `AuditLog`, `Notification`
+- `api/finance/expenses/<id>/history/`
+  - Reads: `AuditLog`
+- `api/finance/ledger/`
+  - Reads: `LedgerEntry`
+- `api/finance/notifications/`
+  - Reads/Writes: `Notification`
+- `api/finance/dashboard/maker/`
+  - Reads: `Advance`, `Expense`, `Notification`
+- `api/finance/dashboard/checker/`
+  - Reads: `Advance`, `Expense`, `Notification`
+- `api/finance/dashboard/reports/`
+  - Reads: `Advance`, `Expense`
+
+6. Cross-App Relationships
+
+- `accounts.User` -> `app1.Employee`
+  - Type: one-to-one
+  - Why: links Maker-Checker user account to HR employee identity
+  - Clean or confusing:
+    - useful for integration
+    - but confusing because HR login still uses `app1.Employee` directly
+
+- `accounts.MakerCheckerRoleAssignment` -> `app1.Employee`
+  - Type: one-to-one
+  - Why: one HR employee gets one Maker-Checker assignment row
+  - Clean or confusing:
+    - clean for the new merged Maker-Checker architecture
+
+- `accounts.MakerCheckerRoleAssignment` -> `accounts.User`
+  - Type: one-to-one
+  - Why: one Maker-Checker auth user is tied to one assignment row
+  - Clean or confusing:
+    - clean inside Maker-Checker
+
+- `finance.Advance` -> `accounts.User`
+  - Type: FK
+  - Why: advances belong to maker/checker users, not HR employee rows
+  - Clean or confusing:
+    - clean for Maker-Checker
+
+- `finance.Expense` -> `finance.Advance`
+  - Type: FK
+  - Why: expenses are created against an advance
+  - Clean or confusing:
+    - clean
+
+- `finance.Expense` -> `accounts.User`
+  - Type: FK to maker/reviewer/approver
+  - Why: workflow is role-based within Maker-Checker
+  - Clean or confusing:
+    - clean inside Maker-Checker
+
+- `finance.Notification` -> `accounts.User`
+  - Type: FK
+  - Why: notifications belong to Maker-Checker users
+  - Clean or confusing:
+    - clean
+
+- `attendance.Attendance` -> `app1.Employee`
+  - Type: no FK, only integer `user_id`
+  - Why: attendance code assumes `user_id = Employee.id`
+  - Clean or confusing:
+    - confusing
+    - not strongly enforced by database
+
+- `leave.Leave` -> `app1.Employee`
+  - Type: no FK, only integer `user_id`, plus copied employee fields
+  - Why: leave app copies employee info when request is created
+  - Clean or confusing:
+    - confusing
+    - not strongly enforced by database
+    - duplicated employee details inside leave rows
+
+- `login.Profile` -> `accounts.User`
+  - Type: FK
+  - Why: old profile model built on `AUTH_USER_MODEL`
+  - Clean or confusing:
+    - confusing because active HR login does not use it
+
+7. Duplicate or Overlapping Data
+
+- Overlap: user/auth identity
+  - App 1: `app1.Employee`
+  - App 2: `accounts.User`
+  - Overlapping data:
+    - name
+    - email
+    - role
+    - password/auth behavior
+  - Real source of truth:
+    - HR identity appears mainly in `app1.Employee`
+    - Maker-Checker auth identity appears mainly in `accounts.User`
+  - Duplicated/derived/legacy:
+    - `accounts.User` is partly derived from `Employee` for HR-linked Maker-Checker users
+  - Comment:
+    - this is the biggest ownership overlap in the backend
+
+- Overlap: Maker-Checker role
+  - App 1: `accounts.User.role`
+  - App 2: `accounts.MakerCheckerRoleAssignment.role`
+  - Overlapping data:
+    - Maker / Checker / Admin role
+  - Real source of truth:
+    - `MakerCheckerRoleAssignment` looks like the real source of truth now
+  - Duplicated/derived/legacy:
+    - `User.role` is derived and synchronized
+
+- Overlap: employee profile data inside leave rows
+  - App 1: `app1.Employee`
+  - App 2: `leave.Leave`
+  - Overlapping data:
+    - `name`, `employee_id`, `department`
+  - Real source of truth:
+    - `app1.Employee`
+  - Duplicated/derived/legacy:
+    - `leave.Leave` stores copied snapshot fields
+
+- Overlap: employee link in attendance
+  - App 1: `app1.Employee`
+  - App 2: `attendance.Attendance`
+  - Overlapping data:
+    - employee identity is implied by integer `user_id`
+  - Real source of truth:
+    - `app1.Employee`
+  - Duplicated/derived/legacy:
+    - `attendance` keeps only integer ID, not full duplicate fields
+
+- Overlap: login/profile concept
+  - App 1: `login.Profile`
+  - App 2: `app1.Employee`
+  - App 3: `accounts.User`
+  - Overlapping data:
+    - name
+    - phone
+    - auth identity
+  - Real source of truth:
+    - unclear overall
+    - active HR login clearly uses `app1.Employee`
+    - active Maker-Checker auth uses `accounts.User`
+  - Duplicated/derived/legacy:
+    - `login.Profile` looks legacy or unused
+
+8. Legacy / Unused / Risky Areas
+
+- `login.Profile`
+  - Status: Needs manual review / likely legacy
+  - Reason:
+    - model exists
+    - admin exists
+    - no active endpoint uses it
+
+- `login.serializer.RegisterSerializer`
+  - Status: Likely unused
+  - Reason:
+    - file: `HR-BACKEND/hrms/login/serializer.py`
+    - no route imports it
+    - uses `django.contrib.auth.models.User`, not `accounts.User`
+
+- `attendance.AttendanceSerializer`
+  - Status: Likely unused
+  - Reason:
+    - active views return `values()` or simple responses directly
+
+- `leave.LeaveSerializer`
+  - Status: Likely unused
+  - Reason:
+    - active views return `values()` or simple responses directly
+
+- `accounts.AdminUserUpdateSerializer`
+  - Status: Likely unused / blocked
+  - Reason:
+    - `UserDetailView.patch` returns `410` for HR-linked users
+    - otherwise returns forbidden response
+    - serializer is defined but not really used by current active route flow
+
+- `finance.permissions.py`
+  - Status: Likely unused
+  - Reason:
+    - permission classes exist
+    - finance views mostly use inline role checks instead
+
+- `Candidate` related `Education` / `Experience` API flow
+  - Status: Needs manual review
+  - Reason:
+    - models exist
+    - admin uses them
+    - `CandidateSerializer` includes `education`
+    - active `add_candidate` view only creates `Candidate`
+    - current education creation block is unreachable after an early `return`
+    - no active API write path found for `Experience`
+
+- `login` app overall
+  - Status: Partially active and partially legacy
+  - Reason:
+    - `login_view` is active
+    - `Profile` and `RegisterSerializer` do not match the current main auth flow
+
+- Duplicate auth systems
+  - Status: Active but confusing
+  - Reason:
+    - HR login uses `app1.Employee`
+    - Maker-Checker login uses `accounts.User` plus `MakerCheckerRoleAssignment`
+
+9. Database Table Understanding
+
+- `app1.Candidate`
+  - Table: `app1_candidate`
+  - Stores: candidate applications
+
+- `app1.Education`
+  - Table: `app1_education`
+  - Stores: candidate education rows
+
+- `app1.Experience`
+  - Table: `app1_experience`
+  - Stores: candidate experience rows
+
+- `app1.Employee`
+  - Table: `app1_employee`
+  - Stores: HR employee master data
+
+- `attendance.Attendance`
+  - Table: `attendance_attendance`
+  - Stores: attendance records
+
+- `leave.Leave`
+  - Table: `leave_leave`
+  - Stores: leave requests
+
+- `login.Profile`
+  - Table: `login_profile`
+  - Stores: old/simple profile rows linked to `accounts.User`
+
+- `accounts.User`
+  - Table: `accounts_user`
+  - Stores: custom auth users for Maker-Checker and finance
+
+- `accounts.MakerCheckerRoleAssignment`
+  - Table: `accounts_makercheckerroleassignment`
+  - Stores: HR employee to Maker-Checker access mapping
+
+- `finance.Advance`
+  - Table: `finance_advance`
+  - Stores: allocated advances
+
+- `finance.Expense`
+  - Table: `finance_expense`
+  - Stores: expense requests and bill upload workflow
+
+- `finance.LedgerEntry`
+  - Table: `finance_ledgerentry`
+  - Stores: finance ledger rows
+
+- `finance.AuditLog`
+  - Table: `finance_auditlog`
+  - Stores: workflow action history
+
+- `finance.Notification`
+  - Table: `finance_notification`
+  - Stores: finance workflow notifications
+
+10. Final Source-of-Truth Summary
+
+The clearest source-of-truth owners in this backend are:
+- HR employee master records: `app1.Employee`
+- HR candidate pipeline: `app1.Candidate`
+- attendance rows: `attendance.Attendance`
+- leave request rows: `leave.Leave`
+- Maker-Checker auth user rows: `accounts.User`
+- Maker-Checker access mapping: `accounts.MakerCheckerRoleAssignment`
+- petty cash / expense workflow: `finance` models
+- shared enums and helper rules: `common`
+
+SOURCE OF TRUTH SUMMARY
+
+User/Auth data is mainly stored in:
+`accounts.User` for Maker-Checker auth, and `app1.Employee` for HR login identity.
+
+Employee data is mainly stored in:
+`app1.Employee`
+
+Attendance data is mainly stored in:
+`attendance.Attendance`
+
+Leave data is mainly stored in:
+`leave.Leave`
+
+Finance data is mainly stored in:
+`finance.Advance`, `finance.Expense`, `finance.LedgerEntry`
+
+Maker-Checker data is mainly stored in:
+`accounts.User` and `accounts.MakerCheckerRoleAssignment`
+
+Notification/workflow data is mainly stored in:
+`finance.Notification` and `finance.AuditLog`
+
+Shared/common data is mainly stored in:
+`common` does not store DB rows; it stores shared choices and helper logic
+
+Potential duplicate or confusing ownership areas:
+- `app1.Employee` vs `accounts.User`
+- `accounts.User.role` vs `accounts.MakerCheckerRoleAssignment.role`
+- copied employee fields inside `leave.Leave`
+- integer `user_id` links in `attendance` and `leave` instead of foreign keys
+- `login.Profile` and `login.serializer.RegisterSerializer` look separate from the active auth flow
