@@ -94,6 +94,7 @@ class Employee(models.Model):
     ("hr", "HR"),
     ("checker", "Checker"),
     ("employee", "Employee"),
+    ("admin", "Admin"),
     ]
 
     role = models.CharField(
