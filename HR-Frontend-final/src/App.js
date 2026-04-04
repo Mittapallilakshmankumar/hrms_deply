@@ -32,7 +32,7 @@ export default function App() {
         {/* Login page */}
         <Route
           path="/"
-          element={token ? <Navigate to="/home" /> : <Login />}
+          element={token ? <Navigate to="/login" /> : <Login />}
         />
 
         {/* Protected Home */}

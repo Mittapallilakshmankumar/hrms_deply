@@ -69,10 +69,7 @@ const AddCandidateModal = ({ closeModal, addCandidate }) => {
       role: formData.role || "employee",
     };
 
-    // await axios.post(
-    //   "http://127.0.0.1:8000/api/app1/add/",
-    //   candidate
-    // );
+   
      const form = new FormData();
 
 Object.keys(candidate).forEach(key => {
@@ -338,6 +335,21 @@ await axios.post(
             <option>Select Department</option>
             <option>HR</option>
             <option>IT</option>
+            <option>Marketing</option>
+            <option>Junior Developer</option>
+            <option>Senior Developer</option>
+            <option>Support Engineer</option>
+            <option>Sales Executive</option>
+            <option>Marketing Executive</option>
+            <option>R&D (Research & Development)</option>
+            <option>Team Lead</option>
+            <option>Operations</option>
+            <option>Customer Support</option>
+            <option>Finance</option>
+            <option>Others</option>
+            
+            
+
           </select>
         </div>
 
@@ -375,3 +387,4 @@ await axios.post(
 };
 
 export default AddCandidateModal;
+

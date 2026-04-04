@@ -108,7 +108,7 @@ WSGI_APPLICATION = 'hrms.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
-        'NAME': os.getenv('DB_NAME', 'hrmsaccounts'),
+        'NAME': os.getenv('DB_NAME', 'hrmsaccounts1'),
         'USER': os.getenv('DB_USER', 'postgres'),
         'PASSWORD': os.getenv('DB_PASSWORD', '2001'),
         'HOST': os.getenv('DB_HOST', 'localhost'),
@@ -138,12 +138,20 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
+# LANGUAGE_CODE = 'en-us'
+
+# TIME_ZONE = 'UTC'
+
+# USE_I18N = True
+
+# USE_TZ = True
+
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+ 
+TIME_ZONE = 'Asia/Kolkata'  
+ 
 USE_I18N = True
-
+ 
 USE_TZ = True
 
 

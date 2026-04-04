@@ -78,7 +78,7 @@ export default function EmployeeRequestForm({ onAddRequest }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
           {/* 🔥 ADD THIS LINE HERE */}
-    <h1>{formData.employeeName}</h1>
+    
 
       <h2 className="text-xl font-semibold text-gray-800 mb-4">
         Apply Leave Request

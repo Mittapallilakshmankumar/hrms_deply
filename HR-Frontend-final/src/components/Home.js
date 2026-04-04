@@ -305,7 +305,7 @@ if (attendance?.check_in && attendance?.check_out) {
           <p className="text-sm text-gray-500">Leave Balance</p>
           
           <h2 className="text-3xl font-bold text-gray-800 mt-2">
-  {dashboard.leave_balance || 20}
+  {dashboard.leave_balance || 12}
 </h2>
 
           <p className="text-sm text-gray-400 mt-2">Available this year</p>

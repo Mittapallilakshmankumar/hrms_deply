@@ -14,3 +14,11 @@ class CandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
         fields = '__all__'
+
+
+from .models import Employee
+
+class EmployeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Employee
+        fields = '__all__'   # ✅ includes is_active

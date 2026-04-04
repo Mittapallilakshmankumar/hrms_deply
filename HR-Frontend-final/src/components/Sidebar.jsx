@@ -195,6 +195,7 @@ export default function Sidebar() {
   
   const handleLogout = () => {
   localStorage.clear();
+  
   sessionStorage.clear();
 
   // 🔥 force full reload (IMPORTANT)
