@@ -135,8 +135,7 @@ class Candidate(models.Model):
     phone = models.CharField(max_length=10)
 
     password = models.CharField(max_length=255, null=True, blank=True)
-    emp_id = models.CharField(max_length=20, unique=True, blank=True, null=True)  # 🔥 ADD THIS FIELD
-
+    employee_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
     aadhaar = models.CharField(max_length=12)
     pan = models.CharField(max_length=10)
     uan = models.CharField(max_length=12, blank=True, null=True)
@@ -150,7 +149,6 @@ class Candidate(models.Model):
     experience = models.CharField(max_length=100, blank=True)
     source = models.CharField(max_length=100, blank=True)
     skills = models.CharField(max_length=255, blank=True)
-    # department = models.CharField(max_length=100, blank=True)
     department = models.CharField(max_length=100, default="IT")  # dept
 
 
@@ -161,18 +159,25 @@ class Candidate(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     date_of_joining = models.DateField(null=True, blank=True)
 
-    def __str__(self):
-        return self.first_name
-
-
-# ✅ Education
 class Education(models.Model):
 
     candidate = models.ForeignKey(
         Candidate,
         on_delete=models.CASCADE,
-        related_name="education"
+        related_name="education",
+        null=True,
+        blank=True
     )
+
+    employee = models.ForeignKey(
+        "Employee",
+        on_delete=models.CASCADE,
+        related_name="education",
+        null=True,
+        blank=True
+    )
+
+   
 
     school = models.CharField(max_length=255)
     degree = models.CharField(max_length=255)
@@ -190,7 +195,17 @@ class Experience(models.Model):
     candidate = models.ForeignKey(
         Candidate,
         on_delete=models.CASCADE,
-        related_name="experiences"
+        related_name="experiences",
+        null=True,
+        blank=True
+    )
+
+    employee = models.ForeignKey(
+        "Employee",   # ✅ IMPORTANT
+        on_delete=models.CASCADE,
+        related_name="experiences",
+        null=True,
+        blank=True
     )
 
     company_name = models.CharField(max_length=255)
@@ -206,7 +221,6 @@ class Experience(models.Model):
 class Employee(models.Model):
 
     employee_id = models.CharField(max_length=20, unique=True)
-    emp_id = models.CharField(max_length=20, unique=True, null=True, blank=True) # 🔥 ADD THIS FIELD
 
     name = models.CharField(max_length=200)
     email = models.EmailField()
@@ -222,6 +236,8 @@ class Employee(models.Model):
     ("checker", "Checker"),
     ("employee", "Employee"),
     ("admin", "Admin"),
+    ("management", "Management"),
+    
     ]
 
     role = models.CharField(
@@ -235,6 +251,16 @@ class Employee(models.Model):
     pan = models.CharField(max_length=10, blank=True)
     city = models.CharField(max_length=100, blank=True)
     skills = models.CharField(max_length=255, blank=True)
+    photo = models.ImageField(upload_to="employees/photos/", blank=True, null=True) 
+    official_email = models.EmailField(blank=True, null=True)
+
+    address_line1 = models.CharField(max_length=255, blank=True)
+    address_line2 = models.CharField(max_length=255, blank=True)
+
+    experience = models.CharField(max_length=100, blank=True)
+    source = models.CharField(max_length=100, blank=True)
+
+    uan = models.CharField(max_length=12, blank=True, null=True)
 
      # 🔥 ADD THIS FUNCTION (VERY IMPORTANT)
     def save(self, *args, **kwargs):

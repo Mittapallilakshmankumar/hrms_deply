@@ -9,16 +9,14 @@ class EducationSerializer(serializers.ModelSerializer):
 
 
 class CandidateSerializer(serializers.ModelSerializer):
-    education = EducationSerializer(many=True, read_only=True) 
+    education = EducationSerializer(many=True, read_only=True)
+
+    # ✅ ADD THIS FUNCTION
+    def validate_employee_id(self, value):
+        if Candidate.objects.filter(employee_id=value).exists():
+            raise serializers.ValidationError("Employee ID already exists ❌")
+        return value
 
     class Meta:
         model = Candidate
         fields = '__all__'
-
-
-from .models import Employee
-
-class EmployeeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Employee
-        fields = '__all__'   # ✅ includes is_active

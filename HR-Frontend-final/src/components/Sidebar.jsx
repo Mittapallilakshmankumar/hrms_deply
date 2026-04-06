@@ -187,10 +187,15 @@ export default function Sidebar() {
     { name: "Attendance", path: "/home/attendance", icon: ClipboardCheck },
 
     // 🔥 ONLY ADMIN
-    ...(role === "admin"
-      ? [{ name: "Admin Dashboard", path: "/home/leaveapprove", icon: ClipboardList }]
-      : []),
-  ];
+  //   ...(role === "admin"
+  //     ? [{ name: "Admin Dashboard", path: "/home/leaveapprove", icon: ClipboardList }]
+  //     : []),
+  // ];
+   // ✅ ADMIN + MANAGEMENT + HR
+  ...( ["admin", "management", "hr"].includes(role)
+    ? [{ name: "Admin Dashboard", path: "/home/leaveapprove", icon: ClipboardList }]
+    : []),
+];
 
   
   const handleLogout = () => {

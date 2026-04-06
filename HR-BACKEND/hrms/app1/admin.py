@@ -170,7 +170,7 @@ class CandidateAdmin(admin.ModelAdmin):
     # ✅ Table columns
     list_display = (
         'id',
-        'emp_id',
+        'employee_id',
         'first_name',
         'last_name',
         'email',
@@ -188,7 +188,7 @@ class CandidateAdmin(admin.ModelAdmin):
         'phone',
         'pan',
         'aadhaar',
-        'emp_id'   # 🔥 ADD THIS
+        'employee_id'   # 🔥 ADD THIS
     )
 
     # ✅ Filters (right side)
@@ -196,7 +196,7 @@ class CandidateAdmin(admin.ModelAdmin):
         'department',
         'status',
         'created_at',
-        'emp_id'   # 🔥 ADD THIS
+        'employee_id'   # 🔥 ADD THIS
     )
 
     # ✅ Sorting
@@ -212,7 +212,7 @@ class CandidateAdmin(admin.ModelAdmin):
     fieldsets = (
 
         ("Basic Info", {
-            'fields': ('first_name', 'last_name', 'email', 'phone','emp_id')  # 🔥 ADD emp_id HERE
+            'fields': ('first_name', 'last_name', 'email', 'phone','employee_id')  # 🔥 ADD employee_id HERE
         }),
 
         ("Government Details", {
@@ -253,7 +253,6 @@ class EmployeeAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'employee_id',
-        'emp_id',
         'name',
         'email',
         'department',
@@ -271,7 +270,6 @@ class EmployeeAdmin(admin.ModelAdmin):
     # 🔥 ADD THIS BLOCK
     fields = (
         'employee_id',
-        'emp_id',
         'name',
         'email',
         'password',   # ✅ NOW IT WILL SHOW
@@ -292,3 +290,6 @@ admin.site.register(Candidate, CandidateAdmin)
 admin.site.register(Education, EducationAdmin)
 admin.site.register(Experience, ExperienceAdmin)
 admin.site.register(Employee, EmployeeAdmin)
+
+
+
