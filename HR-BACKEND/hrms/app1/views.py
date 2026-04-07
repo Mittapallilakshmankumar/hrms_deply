@@ -936,3 +936,54 @@ def exit_employee(request, pk):
 
     except Employee.DoesNotExist:
         return Response({"error": "Employee not found"}, status=404)
+
+
+###
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Candidate
+from .serializers import CandidateSerializer
+
+@api_view(['GET'])
+def candidate_detail(request, id):
+    try:
+        candidate = Candidate.objects.get(id=id)
+        serializer = CandidateSerializer(candidate)
+        return Response(serializer.data)
+    except Candidate.DoesNotExist:
+        return Response({"error": "Candidate not found"})
+
+
+@api_view(['GET'])
+def employee_detail(request, id):
+    try:
+        emp = Employee.objects.get(id=id)
+
+        return Response({
+            "id": emp.id,
+            "employee_id": emp.employee_id,
+            "name": emp.name,
+            "first_name": emp.name.split(" ")[0],
+            "last_name": emp.name.split(" ")[1] if " " in emp.name else "",
+            "email": emp.email,
+            "phone": emp.phone,
+            "department": emp.department,
+            "date_of_joining": emp.date_of_joining,
+            "role": emp.role,
+            "aadhaar": emp.aadhaar,
+            "pan": emp.pan,
+            "city": emp.city,
+            "skills": emp.skills,
+            "official_email": emp.official_email,
+            "address_line1": emp.address_line1,
+            "address_line2": emp.address_line2,
+            "experience": emp.experience,
+            "source": emp.source,
+            "uan": emp.uan,
+            # 🔥 ADD THESE
+            "education": list(Education.objects.filter(employee=emp).values()),
+            "experiences": list(Experience.objects.filter(employee=emp).values()),
+        })
+
+    except Employee.DoesNotExist:
+        return Response({"error": "Employee not found"})

@@ -170,6 +170,391 @@
 
 
 
+// import { useEffect, useState } from "react";
+// import Sidebar from "./Sidebar";
+// import HrApprovalTable from "./HrApprovalTable";
+// import EmployeesList from "./EmployeesList";
+// import CandidatesList from "./CandidatesList";
+
+// export default function ApproveLeave() {
+
+//   // ✅ Always admin access
+//   const [isAdminLogged] = useState(true);
+
+//   // ✅ Stats
+//   const [stats, setStats] = useState({
+//     total: 0,
+//     present: 0,
+//     absent: 0,
+//     half_day: 0
+//   });
+
+//   // ✅ Attendance table data
+//   const [attendanceData, setAttendanceData] = useState([]);
+
+//   // 🔥 FETCH ATTENDANCE (ONLY ONCE)
+//   useEffect(() => {
+//     if (isAdminLogged) {
+
+//       fetch("http://127.0.0.1:8000/api/attendance/admin-dashboard/")
+//         .then(res => res.json())
+//         .then(data => {
+
+//           console.log("🔥 DATA:", data);
+
+//           setAttendanceData(data);
+
+//           let total = data.length;
+//           let present = 0;
+//           let absent = 0;
+
+//           data.forEach(emp => {
+//             const status = (emp.today_status || "")
+//               .toLowerCase();
+
+//             if (status === "present") present++;
+//             else absent++;
+//           });
+
+//           setStats({
+//             total,
+//             present,
+//             absent,
+//             half_day: 0
+//           });
+
+//         })
+//         .catch(err => console.log(err));
+
+//     }
+//   }, [isAdminLogged]);
+
+//   return (
+//     <div className="flex">
+
+//       <Sidebar />
+
+//       <div className="flex-1 p-6 bg-gray-100 min-h-screen">
+
+//         <div className="space-y-6">
+
+//           {/* ✅ DASHBOARD CARDS */}
+//           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+//             <div className="bg-white p-5 rounded-2xl shadow">
+//               <p>Total Employees</p>
+//               <h2 className="text-3xl font-bold">{stats.total}</h2>
+//             </div>
+
+//             <div className="bg-green-100 p-5 rounded-2xl">
+//               <p>Present</p>
+//               <h2 className="text-3xl font-bold">{stats.present}</h2>
+//             </div>
+
+//             <div className="bg-red-100 p-5 rounded-2xl">
+//               <p>Absent</p>
+//               <h2 className="text-3xl font-bold">{stats.absent}</h2>
+//             </div>
+
+//             <div className="bg-yellow-100 p-5 rounded-2xl">
+//               <p>Half Day</p>
+//               <h2 className="text-3xl font-bold">{stats.half_day}</h2>
+//             </div>
+
+//           </div>
+
+//           {/* ✅ REFRESH BUTTON */}
+//           <button
+//             onClick={() => window.location.reload()}
+//             className="bg-blue-600 text-white px-4 py-2 rounded"
+//           >
+//             Refresh
+//           </button>
+
+//           {/* ✅ TABLE */}
+//           <h2 className="font-bold text-lg">Attendance Table</h2>
+
+//           <table className="w-full border bg-white">
+//             <thead>
+//               <tr>
+//                 <th className="border p-2">Emp ID</th>
+//                 <th className="border p-2">Name</th>
+//                 <th className="border p-2">Status</th>
+
+//                 {/* ✅ NEW COLUMNS */}
+//                 <th className="border p-2">Login Time</th>
+//                 <th className="border p-2">Logout Time</th>
+
+//                 <th className="border p-2">Present</th>
+//                 <th className="border p-2">Absent</th>
+//                 <th className="border p-2">Total</th>
+//               </tr>
+//             </thead>
+
+//             <tbody>
+//               {attendanceData.length > 0 ? (
+//                 attendanceData.map((emp) => (
+//                   <tr key={emp.employee_id} className="text-center">
+
+//                     <td className="border p-2">{emp.employee_id}</td>
+//                     <td className="border p-2">{emp.name}</td>
+
+//                     <td
+//                       className={`border p-2 font-bold ${
+//                         emp.today_status === "Present"
+//                           ? "text-green-600"
+//                           : "text-red-600"
+//                       }`}
+//                     >
+//                       {emp.today_status}
+//                     </td>
+
+//                     {/* ✅ LOGIN TIME */}
+//                     <td className="border p-2">
+//                       {emp.login_time || "Not Logged In"}
+//                     </td>
+
+//                     {/* ✅ LOGOUT TIME */}
+//                     <td className="border p-2">
+//                       {emp.logout_time || "Not Logged Out"}
+//                     </td>
+
+//                     <td className="border p-2 text-green-600">
+//                       {emp.present_days}
+//                     </td>
+
+//                     <td className="border p-2 text-red-600">
+//                       {emp.absent_days}
+//                     </td>
+
+//                     <td className="border p-2">
+//                       {emp.total_days}
+//                     </td>
+
+//                   </tr>
+//                 ))
+//               ) : (
+//                 <tr>
+//                   <td colSpan="8" className="p-4 text-center">
+//                     No Data Found
+//                   </td>
+//                 </tr>
+//               )}
+//             </tbody>
+//           </table>
+
+//           {/* ✅ OTHER COMPONENTS */}
+//           <HrApprovalTable />
+//           <EmployeesList />
+//           <CandidatesList />
+
+//         </div>
+
+//       </div>
+
+//     </div>
+//   );
+// }
+
+
+
+
+
+// import { useEffect, useState } from "react";
+// import Sidebar from "./Sidebar";
+// import HrApprovalTable from "./HrApprovalTable";
+// import EmployeesList from "./EmployeesList";
+// import CandidatesList from "./CandidatesList";
+
+// export default function ApproveLeave() {
+
+//   // ✅ Always admin access
+//   const [isAdminLogged] = useState(true);
+
+//   // ✅ Stats
+//   const [stats, setStats] = useState({
+//     total: 0,
+//     present: 0,
+//     absent: 0,
+//     half_day: 0
+//   });
+
+//   // ✅ Attendance table data
+//   const [attendanceData, setAttendanceData] = useState([]);
+//   const [selectedDate, setSelectedDate] = useState("");
+//   // 🔥 FETCH ATTENDANCE (ONLY ONCE)
+//   useEffect(() => {
+//   if (isAdminLogged) {
+
+//     let url = "http://127.0.0.1:8000/api/attendance/admin-dashboard/";
+
+//     if (selectedDate) {
+//       url = `http://127.0.0.1:8000/api/attendance/by-date/?date=${selectedDate}`;
+//     }
+
+//     fetch(url)
+//       .then(res => res.json())
+//       .then(data => {
+//         setAttendanceData(data);
+
+//         let total = data.length;
+//         let present = 0;
+//         let absent = 0;
+
+//         data.forEach(emp => {
+//           const status = (emp.status || emp.today_status || "").toLowerCase();
+
+//           if (status === "present") present++;
+//           else absent++;
+//         });
+
+//         setStats({
+//           total,
+//           present,
+//           absent,
+//           half_day: 0
+//         });
+//       });
+
+//   }
+// }, [isAdminLogged, selectedDate]);
+//   return (
+//     <div className="flex">
+
+//       <Sidebar />
+
+//       <div className="flex-1 p-6 bg-gray-100 min-h-screen">
+
+//         <div className="space-y-6">
+
+//           {/* ✅ DASHBOARD CARDS */}
+//           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+//             <div className="bg-white p-5 rounded-2xl shadow">
+//               <p>Total Employees</p>
+//               <h2 className="text-3xl font-bold">{stats.total}</h2>
+//             </div>
+
+//             <div className="bg-green-100 p-5 rounded-2xl">
+//               <p>Present</p>
+//               <h2 className="text-3xl font-bold">{stats.present}</h2>
+//             </div>
+
+//             <div className="bg-red-100 p-5 rounded-2xl">
+//               <p>Absent</p>
+//               <h2 className="text-3xl font-bold">{stats.absent}</h2>
+//             </div>
+
+//             <div className="bg-yellow-100 p-5 rounded-2xl">
+//               <p>Half Day</p>
+//               <h2 className="text-3xl font-bold">{stats.half_day}</h2>
+//             </div>
+
+//           </div>
+
+//           {/* ✅ REFRESH BUTTON */}
+//           <button
+//             onClick={() => window.location.reload()}
+//             className="bg-blue-600 text-white px-4 py-2 rounded"
+//           >
+//             Refresh
+//           </button>
+
+//           {/* ✅ TABLE */}
+//           {/* <h2 className="font-bold text-lg">Attendance Table</h2> */}
+//           <h2 className="font-bold text-lg">Attendance Table</h2>
+
+// <input
+//   type="date"
+//   className="border p-2 mb-4"
+//   value={selectedDate}
+//   onChange={(e) => setSelectedDate(e.target.value)}
+// />
+
+//           <table className="w-full border bg-white">
+//             <thead>
+//               <tr>
+//                 <th className="border p-2">Emp ID</th>
+//                 <th className="border p-2">Name</th>
+//                 <th className="border p-2">Status</th>
+
+//                 {/* ✅ NEW COLUMNS */}
+//                 <th className="border p-2">Login Time</th>
+//                 <th className="border p-2">Logout Time</th>
+
+//                 <th className="border p-2">Present</th>
+//                 <th className="border p-2">Absent</th>
+//                 <th className="border p-2">Total</th>
+//               </tr>
+//             </thead>
+
+//             <tbody>
+//               {attendanceData.length > 0 ? (
+//                 attendanceData.map((emp) => (
+//                   <tr key={emp.employee_id} className="text-center">
+
+//                     <td className="border p-2">{emp.employee_id}</td>
+//                     <td className="border p-2">{emp.name}</td>
+
+//                     <td
+//                       className={`border p-2 font-bold ${
+//                         emp.today_status === "Present"
+//                           ? "text-green-600"
+//                           : "text-red-600"
+//                       }`}
+//                     >
+//                       {emp.today_status}
+//                     </td>
+
+//                     {/* ✅ LOGIN TIME */}
+//                     <td className="border p-2">
+//                       {emp.login_time || "Not Logged In"}
+//                     </td>
+
+//                     {/* ✅ LOGOUT TIME */}
+//                     <td className="border p-2">
+//                       {emp.logout_time || "Not Logged Out"}
+//                     </td>
+
+//                     <td className="border p-2 text-green-600">
+//                       {emp.present_days}
+//                     </td>
+
+//                     <td className="border p-2 text-red-600">
+//                       {emp.absent_days}
+//                     </td>
+
+//                     <td className="border p-2">
+//                       {emp.total_days}
+//                     </td>
+
+//                   </tr>
+//                 ))
+//               ) : (
+//                 <tr>
+//                   <td colSpan="8" className="p-4 text-center">
+//                     No Data Found
+//                   </td>
+//                 </tr>
+//               )}
+//             </tbody>
+//           </table>
+
+//           {/* ✅ OTHER COMPONENTS */}
+//           <HrApprovalTable />
+//           <EmployeesList />
+//           <CandidatesList />
+
+//         </div>
+
+//       </div>
+
+//     </div>
+//   );
+// }
+
+
+
 import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import HrApprovalTable from "./HrApprovalTable";
@@ -177,11 +562,13 @@ import EmployeesList from "./EmployeesList";
 import CandidatesList from "./CandidatesList";
 
 export default function ApproveLeave() {
+  const handleRefresh = () => {
+  setSelectedDate("");
+  setSelectedMonth("");
+};
 
-  // ✅ Always admin access
   const [isAdminLogged] = useState(true);
 
-  // ✅ Stats
   const [stats, setStats] = useState({
     total: 0,
     present: 0,
@@ -189,18 +576,28 @@ export default function ApproveLeave() {
     half_day: 0
   });
 
-  // ✅ Attendance table data
   const [attendanceData, setAttendanceData] = useState([]);
+  const [selectedDate, setSelectedDate] = useState("");
+  // ✅ ADD HERE
+const [selectedMonth, setSelectedMonth] = useState("");
 
-  // 🔥 FETCH ATTENDANCE (ONLY ONCE)
+  // 🔥 FETCH DATA
   useEffect(() => {
     if (isAdminLogged) {
 
-      fetch("http://127.0.0.1:8000/api/attendance/admin-dashboard/")
+      let url = "http://127.0.0.1:8000/api/attendance/admin-dashboard/";
+
+// 🔥 PRIORITY
+if (selectedDate) {
+  url = `http://127.0.0.1:8000/api/attendance/by-date/?date=${selectedDate}`;
+}
+else if (selectedMonth) {
+  url = `http://127.0.0.1:8000/api/attendance/by-month/?month=${selectedMonth}`;
+}
+
+      fetch(url)
         .then(res => res.json())
         .then(data => {
-
-          console.log("🔥 DATA:", data);
 
           setAttendanceData(data);
 
@@ -209,8 +606,7 @@ export default function ApproveLeave() {
           let absent = 0;
 
           data.forEach(emp => {
-            const status = (emp.today_status || "")
-              .toLowerCase();
+            const status = (emp.today_status || emp.status || "").toLowerCase();
 
             if (status === "present") present++;
             else absent++;
@@ -225,9 +621,8 @@ export default function ApproveLeave() {
 
         })
         .catch(err => console.log(err));
-
     }
-  }, [isAdminLogged]);
+  }, [isAdminLogged, selectedDate]);
 
   return (
     <div className="flex">
@@ -238,7 +633,7 @@ export default function ApproveLeave() {
 
         <div className="space-y-6">
 
-          {/* ✅ DASHBOARD CARDS */}
+          {/* DASHBOARD */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
 
             <div className="bg-white p-5 rounded-2xl shadow">
@@ -263,28 +658,40 @@ export default function ApproveLeave() {
 
           </div>
 
-          {/* ✅ REFRESH BUTTON */}
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-          >
-            Refresh
-          </button>
-
-          {/* ✅ TABLE */}
+          {/* DATE PICKER */}
           <h2 className="font-bold text-lg">Attendance Table</h2>
+          <button
+  onClick={handleRefresh}
+  className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
+>
+  Refresh
+</button>
 
+          <input
+            type="date"
+            className="border p-2 mb-4"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+          />
+          <input
+  type="month"
+  className="border p-2 mb-4 ml-2"
+  value={selectedMonth}
+  onChange={(e) => {
+    setSelectedMonth(e.target.value);
+    setSelectedDate(""); // clear date
+  }}
+/>
+
+          {/* TABLE */}
           <table className="w-full border bg-white">
             <thead>
               <tr>
                 <th className="border p-2">Emp ID</th>
                 <th className="border p-2">Name</th>
                 <th className="border p-2">Status</th>
-
-                {/* ✅ NEW COLUMNS */}
                 <th className="border p-2">Login Time</th>
                 <th className="border p-2">Logout Time</th>
-
                 <th className="border p-2">Present</th>
                 <th className="border p-2">Absent</th>
                 <th className="border p-2">Total</th>
@@ -293,46 +700,59 @@ export default function ApproveLeave() {
 
             <tbody>
               {attendanceData.length > 0 ? (
-                attendanceData.map((emp) => (
-                  <tr key={emp.employee_id} className="text-center">
+                attendanceData.map((emp) => {
 
-                    <td className="border p-2">{emp.employee_id}</td>
-                    <td className="border p-2">{emp.name}</td>
+                  const status = emp.today_status || emp.status;
 
-                    <td
-                      className={`border p-2 font-bold ${
-                        emp.today_status === "Present"
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {emp.today_status}
-                    </td>
+                  return (
+                    <tr key={emp.employee_id} className="text-center">
 
-                    {/* ✅ LOGIN TIME */}
-                    <td className="border p-2">
-                      {emp.login_time || "Not Logged In"}
-                    </td>
+                      <td className="border p-2">{emp.employee_id}</td>
+                      <td className="border p-2">{emp.name}</td>
 
-                    {/* ✅ LOGOUT TIME */}
-                    <td className="border p-2">
-                      {emp.logout_time || "Not Logged Out"}
-                    </td>
+                      {/* STATUS */}
+                      <td
+                        className={`border p-2 font-bold ${
+                          status === "Present"
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {status}
+                      </td>
 
-                    <td className="border p-2 text-green-600">
-                      {emp.present_days}
-                    </td>
+                      {/* LOGIN */}
+                      <td className="border p-2">
+                        {emp.login_time || "Not Logged In"}
+                      </td>
 
-                    <td className="border p-2 text-red-600">
-                      {emp.absent_days}
-                    </td>
+                      {/* LOGOUT */}
+                      <td className="border p-2">
+                        {emp.logout_time || "Not Logged Out"}
+                      </td>
 
-                    <td className="border p-2">
-                      {emp.total_days}
-                    </td>
+                      {/* PRESENT */}
+                      <td className="border p-2 text-green-600">
+                        {selectedDate
+                          ? (status === "Present" ? 1 : 0)
+                          : emp.present_days}
+                      </td>
 
-                  </tr>
-                ))
+                      {/* ABSENT */}
+                      <td className="border p-2 text-red-600">
+                        {selectedDate
+                          ? (status === "Absent" ? 1 : 0)
+                          : emp.absent_days}
+                      </td>
+
+                      {/* TOTAL */}
+                      <td className="border p-2">
+                        {selectedDate ? 1 : emp.total_days}
+                      </td>
+
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
                   <td colSpan="8" className="p-4 text-center">
@@ -343,15 +763,12 @@ export default function ApproveLeave() {
             </tbody>
           </table>
 
-          {/* ✅ OTHER COMPONENTS */}
           <HrApprovalTable />
           <EmployeesList />
           <CandidatesList />
 
         </div>
-
       </div>
-
     </div>
   );
 }

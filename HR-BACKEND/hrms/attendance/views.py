@@ -305,6 +305,70 @@ def admin_reset_password(request):
         return Response({"error": str(e)}, status=400)
  
  
+
  
-   
-   
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Attendance
+from app1.models import Employee
+
+@api_view(['GET'])
+def attendance_by_date(request):
+    date = request.GET.get('date')
+
+    employees = Employee.objects.all()
+    data = []
+
+    for emp in employees:
+        record = Attendance.objects.filter(
+            user_id=emp.id,    # ✅ IMPORTANT FIX
+            date=date
+        ).first()
+
+        if record and record.check_in and record.check_out:
+            status = "Present"
+        else:
+            status = "Absent"
+
+        data.append({
+            "employee_id": emp.employee_id,
+            "name": emp.name,
+            "status": status
+        })
+
+    return Response(data)
+
+@api_view(['GET'])
+def attendance_by_month(request):
+    month_str = request.GET.get('month')  # format: 2026-04
+
+    year, month = month_str.split("-")
+
+    employees = Employee.objects.all()
+    data = []
+
+    for emp in employees:
+        records = Attendance.objects.filter(
+            user_id=emp.id,   # ✅ same as your date API
+            date__year=year,
+            date__month=month
+        )
+
+        present_days = records.filter(
+            check_in__isnull=False,
+            check_out__isnull=False
+        ).count()
+
+        total_days = records.count()
+        absent_days = total_days - present_days
+
+        data.append({
+            "employee_id": emp.employee_id,
+            "name": emp.name,
+            "present_days": present_days,
+            "absent_days": absent_days,
+            "total_days": total_days,
+            "today_status": "Present" if present_days > 0 else "Absent"
+        })
+
+    return Response(data)
