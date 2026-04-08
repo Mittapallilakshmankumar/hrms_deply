@@ -7,3 +7,6 @@ class ProfileAdmin(admin.ModelAdmin):
     list_filter = ('user',)                          # filter option
 
 admin.site.register(Profile, ProfileAdmin)
+
+
+

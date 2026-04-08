@@ -36,3 +36,6 @@ class NotificationType(models.TextChoices):
     EXPENSE_APPROVED = "EXPENSE_APPROVED", "Expense Approved"
     EXPENSE_REJECTED = "EXPENSE_REJECTED", "Expense Rejected"
     BILL_PENDING = "BILL_PENDING", "Bill Pending"
+
+
+

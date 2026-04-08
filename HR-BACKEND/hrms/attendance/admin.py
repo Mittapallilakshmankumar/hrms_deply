@@ -32,3 +32,5 @@ class AttendanceAdmin(admin.ModelAdmin):
 
 # ✅ Register model
 admin.site.register(Attendance, AttendanceAdmin)
+
+

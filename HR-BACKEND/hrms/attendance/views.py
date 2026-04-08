@@ -372,3 +372,8 @@ def attendance_by_month(request):
         })
 
     return Response(data)
+
+
+
+
+    

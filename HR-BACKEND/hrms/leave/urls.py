@@ -8,3 +8,5 @@ urlpatterns = [
     path('reject/<int:id>/', reject_leave),
     path('employee/<int:user_id>/', get_employee),
 ]
+
+

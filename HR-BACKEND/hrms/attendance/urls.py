@@ -10,3 +10,5 @@ urlpatterns = [
     path('by-date/', attendance_by_date),
     path('by-month/', attendance_by_month),
 ]
+
+

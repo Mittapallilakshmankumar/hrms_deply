@@ -157,3 +157,5 @@ def amount_to_words(value):
     if paise:
         result += f" and {integer_to_words(paise)} Paise"
     return f"{result} Only"
+
+

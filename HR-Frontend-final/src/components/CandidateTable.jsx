@@ -166,3 +166,5 @@ const CandidateTable = () => {
 };
 
 export default CandidateTable;
+
+

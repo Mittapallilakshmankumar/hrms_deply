@@ -75,3 +75,6 @@ def login_view(request):
         "role": employee.role,
         "email": employee.email
     })
+
+
+    

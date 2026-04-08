@@ -27,3 +27,7 @@ class LeaveAdmin(admin.ModelAdmin):
     )
 
     ordering = ('-from_date',)
+
+
+
+    

@@ -662,3 +662,5 @@ class FinanceFlowTests(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("bill_file", response.data)
+
+
