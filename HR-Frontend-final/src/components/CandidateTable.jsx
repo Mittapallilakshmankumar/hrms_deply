@@ -1,88 +1,22 @@
-// import { useEffect, useState } from "react";
-
-// const CandidateTable = () => {
-//   const [candidates, setCandidates] = useState([]);
-
-//   // 🔥 GET METHOD HERE
-//   useEffect(() => {
-//     const userId = localStorage.getItem("userId");
-//     console.log("USER ID:", userId);
-
-//     const isAdmin = localStorage.getItem("isAdmin");
-
-//     const url =
-//       isAdmin === "true"
-//         ? "http://127.0.0.1:8000/api/app1/employees/"
-//         : `http://127.0.0.1:8000/api/app1/employees/?user_id=${userId}`;
-
-//     fetch(url)
-//       .then((res) => res.json())
-//       .then((data) => {
-//         console.log("API DATA:", data);
-//         setCandidates(data);
-//       })
-//       .catch((err) => console.error(err));
-//   }, []);
-
-//   return (
-//     <div className="bg-white rounded shadow p-4 overflow-x-auto">
-
-//       {/* Header */}
-//       <div className="grid grid-cols-10 gap-6 min-w-[1200px] font-semibold text-sm border-b pb-3">
-//         <div className="px-3 whitespace-nowrap">Emp ID</div>
-//         <div className="px-3 whitespace-nowrap">Name</div>
-//         <div className="px-3 whitespace-nowrap">Email</div>
-//         <div className="px-3 whitespace-nowrap">Phone</div>
-//         <div className="px-3 whitespace-nowrap">Department</div>
-//         <div className="px-3 whitespace-nowrap">Joining Date</div>
-//         <div className="px-3 whitespace-nowrap">Role</div>
-//         <div className="px-3 whitespace-nowrap">Aadhaar</div>
-//         <div className="px-3 whitespace-nowrap">PAN</div>
-//         <div className="px-3 whitespace-nowrap">City</div>
-//       </div>
-
-//       {/* Data */}
-//       {candidates && candidates.length > 0 ? (
-//         candidates.map((c, index) => (
-//           <div
-//             key={index}
-//             className="grid grid-cols-10 gap-6 min-w-[1200px] text-sm border-b py-3 hover:bg-gray-50"
-//           >
-//             <div className="px-3 whitespace-nowrap">{c.employee_id}</div>
-//             <div className="px-3 whitespace-nowrap">{c.name}</div>
-//             <div className="px-3 whitespace-nowrap">
-//               {c.email}
-//             </div>
-//             <div className="px-3 whitespace-nowrap">{c.phone}</div>
-//             <div className="px-3 whitespace-nowrap">{c.department}</div>
-//             <div className="px-3 whitespace-nowrap">{c.date_of_joining}</div>
-//             <div className="px-3 whitespace-nowrap">{c.role}</div>
-//             <div className="px-3 whitespace-nowrap">{c.aadhaar}</div>
-//             <div className="px-3 whitespace-nowrap">{c.pan}</div>
-//             <div className="px-3 whitespace-nowrap">{c.city}</div>
-//           </div>
-//         ))
-//       ) : (
-//         <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-//           <p className="text-lg">No records found</p>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default CandidateTable;
-
-
 
 import { useEffect, useState } from "react";
 import AddCandidateModal from "./AddCandidateModal";
 
 const CandidateTable = () => {
+
   const [candidates, setCandidates] = useState([]);
-  const [viewId, setViewId] = useState(null); // ✅ view state
+  const [viewId, setViewId] = useState(null);
+
+  // ✅ search state
+  const [search, setSearch] = useState("");
+
+  // ✅ pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 5;
+
 
   useEffect(() => {
+
     const userId = localStorage.getItem("userId");
     const isAdmin = localStorage.getItem("isAdmin");
 
@@ -98,13 +32,59 @@ const CandidateTable = () => {
         setCandidates(data);
       })
       .catch((err) => console.error(err));
+
   }, []);
 
+
+  // ✅ search filter logic
+  const filteredCandidates = candidates.filter((c) =>
+    c.name?.toLowerCase().includes(search.toLowerCase()) ||
+    c.employee_id?.toLowerCase().includes(search.toLowerCase())
+  );
+
+
+  // ✅ pagination logic
+  const indexOfLast = currentPage * recordsPerPage;
+  const indexOfFirst = indexOfLast - recordsPerPage;
+
+  const currentRecords = filteredCandidates.slice(
+    indexOfFirst,
+    indexOfLast
+  );
+
+  const totalPages = Math.ceil(
+    filteredCandidates.length / recordsPerPage
+  );
+
+
   return (
+
     <div className="bg-white rounded shadow p-4 overflow-x-auto">
 
+
+      {/* 🔍 SEARCH BAR */}
+
+      <div className="flex justify-between items-center mb-4">
+
+        <input
+          type="text"
+          placeholder="Search by Employee Name or ID..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setCurrentPage(1); // reset page after search
+          }}
+          className="border px-4 py-2 rounded w-72 focus:outline-none focus:ring focus:ring-blue-200"
+        />
+
+      </div>
+
+
+
       {/* HEADER */}
-      <div className="grid grid-cols-11 gap-6 min-w-[1300px] font-semibold text-sm border-b pb-3">
+
+      <div className="grid grid-cols-8 gap-4 min-w-[1300px] font-semibold text-sm border-b pb-3">
+
         <div>Emp ID</div>
         <div>Name</div>
         <div>Email</div>
@@ -112,59 +92,121 @@ const CandidateTable = () => {
         <div>Department</div>
         <div>Joining Date</div>
         <div>Role</div>
-        <div>Aadhaar</div>
-        <div>PAN</div>
-        <div>City</div>
-        <div>Action</div> {/* ✅ NEW */}
+        <div>Action</div>
+
       </div>
 
+
+
       {/* DATA */}
-      {candidates && candidates.length > 0 ? (
-        candidates.map((c, index) => (
+
+      {currentRecords.length > 0 ? (
+
+        currentRecords.map((c, index) => (
+
           <div
             key={index}
-            className="grid grid-cols-11 gap-6 min-w-[1300px] text-sm border-b py-3 hover:bg-gray-50"
+            className="grid grid-cols-8 gap-4 min-w-[1300px] text-sm border-b py-3 hover:bg-gray-50"
           >
+
             <div>{c.employee_id}</div>
-            <div>{c.name}</div> {/* ✅ FIX */}
+            <div>{c.name}</div>
             <div>{c.email}</div>
             <div>{c.phone}</div>
             <div>{c.department}</div>
             <div>{c.date_of_joining}</div>
             <div>{c.role}</div>
-            <div>{c.aadhaar}</div>
-            <div>{c.pan}</div>
-            <div>{c.city}</div>
 
-            {/* ✅ VIEW BUTTON */}
+
+            {/* VIEW BUTTON */}
+
             <div>
+
               <button
                 onClick={() => setViewId(c.id)}
                 className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
               >
                 View
               </button>
+
             </div>
 
           </div>
+
         ))
+
       ) : (
+
         <div className="flex justify-center py-10 text-gray-400">
           No records found
         </div>
+
       )}
 
-      {/* ✅ OPEN FORM */}
+
+
+      {/* ✅ PAGINATION */}
+
+      {totalPages > 1 && (
+
+        <div className="flex justify-center mt-6 gap-2">
+
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(currentPage - 1)}
+            className="px-3 py-1 border rounded disabled:opacity-40"
+          >
+            Prev
+          </button>
+
+
+          {[...Array(totalPages)].map((_, i) => (
+
+            <button
+              key={i}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-1 border rounded ${
+                currentPage === i + 1
+                  ? "bg-blue-600 text-white"
+                  : ""
+              }`}
+            >
+              {i + 1}
+            </button>
+
+          ))}
+
+
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(currentPage + 1)}
+            className="px-3 py-1 border rounded disabled:opacity-40"
+          >
+            Next
+          </button>
+
+        </div>
+
+      )}
+
+
+
+      {/* OPEN MODAL */}
+
       {viewId && (
+
         <AddCandidateModal
           closeModal={() => setViewId(null)}
           candidateId={viewId}
         />
+
       )}
+
     </div>
+
   );
+
 };
 
+
 export default CandidateTable;
-
-

@@ -21,7 +21,7 @@
 
 
 from django.urls import path
-from .views import add_candidate, get_candidates, delete_candidate, update_candidate, approve_candidate, dashboard,list_employees,exit_employee, employee_detail
+from .views import add_candidate, get_candidates, delete_candidate, update_candidate, approve_candidate, dashboard,list_employees,exit_employee, employee_detail,upload_employee_file,get_all_files
 urlpatterns = [
     path('add/', add_candidate),
     path('list/', get_candidates),
@@ -37,5 +37,8 @@ urlpatterns = [
     path('dashboard/', dashboard),
     path('employees/', list_employees),
     path('employees/<int:id>/', employee_detail),
+    path("upload-file/", upload_employee_file),
+    path("files/", get_all_files),
+    
 ]
 

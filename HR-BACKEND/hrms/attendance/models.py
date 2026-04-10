@@ -2,7 +2,7 @@ from django.db import models
 
 class Attendance(models.Model):
     user_id = models.IntegerField()
-    date = models.DateField()   # ❗ NO auto_now_add
+    date = models.DateField()  
 
     check_in = models.TimeField(null=True, blank=True)
     check_out = models.TimeField(null=True, blank=True)

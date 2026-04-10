@@ -62,12 +62,12 @@ INSTALLED_APPS = [
      'rest_framework_simplejwt',
      'django_filters',
     'app1',
-      'attendance',
-      'login',
-      'leave',
-      'finance',#frined
-'common',#frined
-'accounts', #frined
+    'attendance',
+    'login',
+    'leave',
+    'finance',#frined
+    'common',#frined
+    'accounts', #frined
 ]
 
 MIDDLEWARE = [
@@ -110,7 +110,7 @@ DATABASES = {
         'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
         'NAME': os.getenv('DB_NAME', 'hrmsaccounts1'),
         'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', '2001'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'Ayyappa@888'),
         'HOST': os.getenv('DB_HOST', 'localhost'),
         'PORT': os.getenv('DB_PORT', '5432'),
     }
