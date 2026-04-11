@@ -13,7 +13,7 @@ def check_in(request):
     user_id = request.data.get("user_id")
     notes = request.data.get("notes", "")   # ✅ GET NOTES FROM FRONTEND
 
-    print("USER ID:", user_id)
+    # print("USER ID:", user_id)
 
     if not user_id:
         return Response({"message": "User ID missing"})
@@ -32,7 +32,7 @@ def check_in(request):
     )
 
     if pending_records.exists():
-        print("🔄 Running auto logout for all employees...")
+        # print("🔄 Running auto logout for all employees...")
 
         count = pending_records.count()
 
@@ -63,7 +63,7 @@ def check_in(request):
         notes=notes   # 🔥 SAVING NOTES
     )
 
-    print("DATA SAVED ✅")
+    # print("DATA SAVED ✅")
 
     return Response({"message": "Check-in success"})
 
@@ -110,7 +110,7 @@ def attendance_list(request):
     user_id = int(user_id)
  
     all_data = Attendance.objects.all()
-    print("ALL DATA:", list(all_data.values()))
+    # print("ALL DATA:", list(all_data.values()))
  
    
     Attendance.objects.filter(user_id=user_id)  
@@ -119,7 +119,7 @@ def attendance_list(request):
     # return Response(list(data.values()))
     queryset = Attendance.objects.filter(user_id=user_id)
  
-    print("FILTERED DATA:", list(queryset.values()))
+    # print("FILTERED DATA:", list(queryset.values()))
  
     return Response(list(queryset.values()))
  

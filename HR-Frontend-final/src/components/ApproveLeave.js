@@ -145,14 +145,6 @@ export default function ApproveLeave() {
 
           <div className="flex flex-wrap gap-3 items-center mb-4">
 
-            <button
-              onClick={handleRefresh}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Refresh
-            </button>
-
-
             <input
               type="date"
               className="border p-2"
@@ -189,6 +181,13 @@ export default function ApproveLeave() {
               }}
               className="border px-4 py-2 rounded w-72"
             />
+          
+            <button
+  onClick={() => window.location.reload()}
+  className="bg-blue-600 text-white px-4 py-2 rounded"
+>
+  Refresh
+</button>
 
           </div>
 

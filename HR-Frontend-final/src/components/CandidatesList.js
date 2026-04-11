@@ -190,16 +190,17 @@ export default function CandidatesList() {
 
           {/* REFRESH */}
 
-          <button
-            onClick={() => {
-              setSearchText("");
-              setSearchDept("");
-              setPage(1);
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-          >
-            Refresh
-          </button>
+  <button
+  onClick={() => {
+    fetchCandidates();
+    setSearchText("");
+    setSearchDept("");
+    setPage(1);
+  }}
+  className="bg-blue-600 text-white px-4 py-2 rounded"
+>
+  Refresh
+</button>
 
         </div>
 

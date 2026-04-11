@@ -1,6 +1,6 @@
 
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from .models import Candidate, Education, Employee,Experience,EmployeeFile
 from .serializers import CandidateSerializer,EmployeeFileSerializer
@@ -8,6 +8,7 @@ from datetime import date
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
 import json
+from rest_framework.permissions import AllowAny
 
 
 
@@ -16,12 +17,12 @@ import json
 @api_view(['POST'])
 def add_candidate(request):
     try:
-        print("API HIT")
-        print("===== CHECK START =====")
-        print("FULL DATA:", request.data)
-        print("EDUCATION:", request.data.get("education"))
-        print("EXPERIENCE:", request.data.get("experiences"))
-        print("===== CHECK END =====")
+        # print("API HIT")
+        # print("===== CHECK START =====")
+        # print("FULL DATA:", request.data)
+        # print("EDUCATION:", request.data.get("education"))
+        # print("EXPERIENCE:", request.data.get("experiences"))
+        # print("===== CHECK END =====")
 
         data = request.data
         files = request.FILES
@@ -50,7 +51,7 @@ def add_candidate(request):
             photo=photo,
         )
 
-        print("SAVED:", candidate.id)
+        # print("SAVED:", candidate.id)
 
         # ✅ SAVE EDUCATION
                 # ✅ SAVE EDUCATION
@@ -84,7 +85,7 @@ def add_candidate(request):
                         years=exp.get("years"),
                         description=exp.get("description")
                     )
-        print(candidate.first_name,candidate.last_name,candidate.role)
+        # print(candidate.first_name,candidate.last_name,candidate.role)
         # ✅ RETURN
         return Response({"message": "Candidate saved successfully"})
 
@@ -94,8 +95,9 @@ def add_candidate(request):
         return Response({"error": str(e)}, status=400)
 
 
-# ✅ GET CANDIDATES (FIXED)
+
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def get_candidates(request):
     try:
         candidates = Candidate.objects.all()   # 🔥 SIMPLE FIX
@@ -148,20 +150,6 @@ from rest_framework.response import Response
 
 @api_view(['POST'])
 def approve_candidate(request, id):
-    user = request.user   # ✅ STEP 1
-      # ✅ ADD THESE 2 LINES HERE
-    print("USER:", request.user)
-    print("ROLE:", request.user.role)
-     # ✅ ADD THIS (VERY IMPORTANT)
-    if not user.is_authenticated:
-        return Response({"error": "Login required"}, status=401)
-
-    # if user.role not in ["admin", "hr", "management"]:
-    
-    if user.role.lower() not in ["admin", "hr", "management"]:
-        return Response({"error": "Permission denied"}, status=403)
-    print("APPROVE CLICKED")
-
     try:
         # ✅ Get candidate
         candidate = Candidate.objects.get(id=id)
@@ -199,7 +187,7 @@ def approve_candidate(request, id):
        
         )
 
-        print("EMP CREATED:", emp)
+        # print("EMP CREATED:", emp)
         for edu in candidate.education.all():
             Education.objects.create(
             employee=emp,
@@ -300,19 +288,6 @@ def list_employees(request):
 
 @api_view(['PATCH'])
 def exit_employee(request, pk):
-
-    user = request.user   # ✅ ADD THIS
-    # ✅ ADD THIS FIRST
-    if not user.is_authenticated:
-        return Response({"error": "Login required"}, status=401)
-    # ✅ ADD THESE 2 LINES HERE
-    print("USER:", request.user)
-    print("ROLE:", request.user.role)
-
-    # 🔥 SECURITY CHECK
-    # if user.role not in ["admin", "hr", "management"]:
-    if user.role.lower() not in ["admin", "hr", "management"]:
-        return Response({"error": "Permission denied"}, status=403)
 
     try:
         emp = Employee.objects.get(id=pk)

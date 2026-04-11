@@ -19,22 +19,6 @@ const user = {
   department: "Human Resources"
 };
 
-
-// function Layout({ title, children }) {
-//   return (
-// <div className="flex min-h-screen bg-[#f4f7fb]">
-// <Sidebar />
- 
-//       <div className="flex-1 flex flex-col">
-// <div className="p-4 md:p-6">
-// <Navbar />
-// <main className="mt-6">{children}</main>
-// </div>
-// </div>
-// </div>
-//   );
-// }
-
 function Layout({ title, children }) {
   return (
     <div className="flex min-h-screen bg-[#f4f7fb]">
@@ -691,8 +675,15 @@ function AttendancePage() {
       </div>
     </Layout>
   );
-}
+};
+
+
+/* ===========================
+   CHECK-IN PAGE
+=========================== */
+
 function CheckInPage() {
+
   const userName = localStorage.getItem("userName");
   const empId = localStorage.getItem("employeeId");
 
@@ -701,75 +692,88 @@ function CheckInPage() {
   const [submitted, setSubmitted] = useState(false);
   const [lastLoginName, setLastLoginName] = useState("");
 
+  const [popupMessage, setPopupMessage] = useState("");
+  const [popupType, setPopupType] = useState("");
+
   const navigate = useNavigate();
+
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
+
+
   const handleSubmit = async (e) => {
-  e.preventDefault();
 
-  const res = await fetch("http://127.0.0.1:8000/api/attendance/check-in/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      user_id: localStorage.getItem("userId"),
-      notes: notes,
-    }),
-  });
+    e.preventDefault();
 
-  const data = await res.json(); // 🔥 IMPORTANT
+    const res = await fetch("http://127.0.0.1:8000/api/attendance/check-in/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: localStorage.getItem("userId"),
+        notes: notes,
+      }),
+    });
 
-  // 🔥 HANDLE RESPONSE
-  if (data.message === "Already checked in") {
-    alert("Already checked in today ❌");
+    const data = await res.json();
 
-      setTimeout(() => {
-    navigate("/home/attendance");   // ✅ REDIRECT
-  }, 1000);
-    return;
-  }
 
-  if (data.message === "Check-in success") {
-    setLastLoginName(userName);
-    setSubmitted(true);
-    setNotes("");
+    setPopupMessage(data.message);
+
+
+    if (data.message === "Check-in success") {
+
+      setPopupType("success");
+      setSubmitted(true);
+      setLastLoginName(userName);
+      setNotes("");
+
+    } else {
+
+      setPopupType("error");
+
+    }
+
 
     setTimeout(() => {
-      // navigate("/home");
-        navigate("/home/attendance");
-    }, 1000);
-  }
-};
+      navigate("/home/attendance");
+    }, 1200);
+
+  };
+
+
 
   return (
+
     <Layout>
+
       <div className="flex items-center justify-center min-h-[70vh] relative">
+
         <div className={`w-full max-w-md bg-white rounded-lg shadow-sm border ${submitted ? "blur-sm" : ""}`}>
 
           <div className="bg-green-50 border-b py-3">
-            <h2 className="text-center font-semibold">Login (Check-In)</h2>
+            <h2 className="text-center font-semibold">
+              Login (Check-In)
+            </h2>
           </div>
+
 
           <form className="p-6 space-y-4" onSubmit={handleSubmit}>
 
-            {/* Name */}
             <input value={userName} readOnly className="w-full border p-2 bg-gray-100" />
 
-            {/* Emp ID */}
             <input value={empId} readOnly className="w-full border p-2 bg-gray-100" />
 
-            {/* Date */}
             <input value={now.toLocaleDateString()} readOnly className="w-full border p-2 bg-gray-50" />
 
-            {/* Time */}
             <input value={now.toLocaleTimeString()} readOnly className="w-full border p-2 bg-gray-50" />
 
-            {/* Notes */}
+
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -777,29 +781,64 @@ function CheckInPage() {
               className="w-full border p-2"
             />
 
+
             <button className="w-full bg-green-600 text-white py-2 rounded">
               Submit
             </button>
 
           </form>
+
         </div>
 
-        {/* SUCCESS POPUP */}
-        {submitted && (
+
+
+        {/* POPUP MESSAGE */}
+
+        {popupMessage && (
+
           <div className="fixed inset-0 flex items-center justify-center z-50">
+
             <div className="absolute inset-0 bg-black/20"></div>
 
             <div className="bg-white p-6 rounded text-center z-10">
-              <h2 className="text-green-600 font-bold">Check-In Successful</h2>
-              <p>{lastLoginName}</p>
+
+              <h2
+                className={`font-bold ${
+                  popupType === "success"
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                {popupMessage}
+              </h2>
+
+              {popupType === "success" && (
+                <p>{lastLoginName}</p>
+              )}
+
             </div>
+
           </div>
+
         )}
+
       </div>
+
     </Layout>
+
   );
+
 }
+
+
+
+
+/* ===========================
+   CHECK-OUT PAGE
+=========================== */
+
 function CheckOutPage() {
+
   const userName = localStorage.getItem("userName");
   const empId = localStorage.getItem("employeeId");
 
@@ -807,79 +846,95 @@ function CheckOutPage() {
   const [summary, setSummary] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [lastLoginName, setLastLoginName] = useState("");
-  const navigate = useNavigate();   // ✅ ADD THIS
+
+  const [popupMessage, setPopupMessage] = useState("");
+  const [popupType, setPopupType] = useState("");
+
+  const navigate = useNavigate();
+
+
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
+
+
   const handleSubmit = async (e) => {
-  e.preventDefault();
 
-  const res = await fetch("http://127.0.0.1:8000/api/attendance/check-out/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      user_id: localStorage.getItem("userId"),
-      summary: summary,
-    }),
-  });
+    e.preventDefault();
 
-  const data = await res.json(); // 🔥 IMPORTANT
+    const res = await fetch("http://127.0.0.1:8000/api/attendance/check-out/", {
 
-  if (data.message === "Already checked out") {
-    alert("Already checked out ❌");
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        user_id: localStorage.getItem("userId"),
+        summary: summary,
+      }),
+
+    });
+
+
+    const data = await res.json();
+
+
+    setPopupMessage(data.message);
+
+
+    if (data.message === "Check-out success") {
+
+      setPopupType("success");
+      setSubmitted(true);
+      setLastLoginName(userName);
+      setSummary("");
+
+    } else {
+
+      setPopupType("error");
+
+    }
+
 
     setTimeout(() => {
-    navigate("/home/attendance");   // ✅ MOVE PAGE
-  }, 1000);
+      navigate("/home/attendance");
+    }, 1200);
 
-    return;
-  }
+  };
 
-  if (data.message === "No check-in found") {
-    alert("Please check-in first ❌");
-    
-    return;
-  }
 
-  if (data.message === "Check-out success") {
-    setLastLoginName(userName);
-    setSubmitted(true);
-    setSummary("");
-  }
-   setTimeout(() => {
-    navigate("/home/attendance");   // ✅ ADD THIS
-  }, 1000);
-};
 
   return (
+
     <Layout>
+
       <div className="flex items-center justify-center min-h-[70vh] relative">
+
         <div className={`w-full max-w-md bg-white rounded-lg shadow-sm border ${submitted ? "blur-sm" : ""}`}>
 
           <div className="bg-red-50 border-b py-3">
-            <h2 className="text-center font-semibold">Logout (Check-Out)</h2>
+            <h2 className="text-center font-semibold">
+              Logout (Check-Out)
+            </h2>
           </div>
+
 
           <form className="p-6 space-y-4" onSubmit={handleSubmit}>
 
-            {/* Name */}
             <input value={userName} readOnly className="w-full border p-2 bg-gray-100" />
 
-            {/* Emp ID */}
             <input value={empId} readOnly className="w-full border p-2 bg-gray-100" />
 
-            {/* Date */}
             <input value={now.toLocaleDateString()} readOnly className="w-full border p-2 bg-gray-50" />
 
-            {/* Time */}
             <input value={now.toLocaleTimeString()} readOnly className="w-full border p-2 bg-gray-50" />
 
-            {/* Summary */}
+
             <textarea
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
@@ -887,28 +942,55 @@ function CheckOutPage() {
               className="w-full border p-2"
             />
 
+
             <button className="w-full bg-red-600 text-white py-2 rounded">
               Submit
             </button>
 
           </form>
+
         </div>
 
-        {/* SUCCESS POPUP */}
-        {submitted && (
+
+
+        {/* POPUP MESSAGE */}
+
+        {popupMessage && (
+
           <div className="fixed inset-0 flex items-center justify-center z-50">
+
             <div className="absolute inset-0 bg-black/20"></div>
 
             <div className="bg-white p-6 rounded text-center z-10">
-              <h2 className="text-red-600 font-bold">Check-Out Successful</h2>
-              <p>{lastLoginName}</p>
+
+              <h2
+                className={`font-bold ${
+                  popupType === "success"
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
+                {popupMessage}
+              </h2>
+
+              {popupType === "success" && (
+                <p>{lastLoginName}</p>
+              )}
+
             </div>
+
           </div>
+
         )}
+
       </div>
+
     </Layout>
+
   );
+
 }
+
 
 function TrackerPage() {
   const [data, setData] = useState([]);

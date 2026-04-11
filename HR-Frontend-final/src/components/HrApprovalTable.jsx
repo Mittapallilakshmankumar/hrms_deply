@@ -162,21 +162,11 @@ export default function HrApprovalTable() {
 
 
         <button
-          onClick={() => {
-
-            setSearchText("");
-            setSearchDate("");
-            setSearchStatus("");
-
-            setPendingPage(1);
-            setApprovedPage(1);
-            setRejectedPage(1);
-
-          }}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Refresh
-        </button>
+  onClick={() => window.location.reload()}
+  className="bg-blue-600 text-white px-4 py-2 rounded"
+>
+  Refresh
+</button>
 
       </div>
 
