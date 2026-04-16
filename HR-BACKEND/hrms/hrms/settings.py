@@ -34,10 +34,11 @@ def get_list_env(name, default=None):
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv(
-    "DJANGO_SECRET_KEY",
-    "django-insecure-biltn01z=lm4rlo86%9pe9m8-42e*ual_f$^#9ppeu%fn_8&_h",
-)
+# SECRET_KEY = os.getenv(
+#     "DJANGO_SECRET_KEY",
+#     "django-insecure-biltn01z=lm4rlo86%9pe9m8-42e*ual_f$^#9ppeu%fn_8&_h",
+# )
+ALLOWED_HOSTS = ['*']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = get_bool_env("DJANGO_DEBUG", True)
